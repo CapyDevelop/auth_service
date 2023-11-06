@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+RUN apt-get update && apt-get install -y git
+
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
@@ -7,5 +9,6 @@ RUN pip install -r requirements.txt
 RUN pip install gunicorn
 
 COPY . .
+COPY .env_docker .env
 
-CMD ["gunicorn", "-w 4", "-b 0.0.0.0:3016", "app:main"]
+CMD ["python", "main.py"]

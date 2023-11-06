@@ -16,12 +16,12 @@ logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 
 db_service_channel = grpc.insecure_channel(
-    f'localhost:{os.getenv("DB_SERVICE_PORT")}'
+    f'{os.getenv("DB_SERVICE_HOST")}:{os.getenv("DB_SERVICE_PORT")}'
 )
 db_service_stub = db_pb2_grpc.DBServiceStub(db_service_channel)
 
 school_service_channel = grpc.insecure_channel(
-    f'localhost:{os.getenv("SCHOOL_GRPC_PORT")}'
+    f'{os.getenv("SCHOOL_GRPC_HOST")}:{os.getenv("SCHOOL_GRPC_PORT")}'
 )
 school_service_stub = school_pb2_grpc.SchoolServiceStub(school_service_channel)
 
