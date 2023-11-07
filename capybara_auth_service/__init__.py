@@ -7,9 +7,9 @@ import auth_service.authservice_pb2 as auth_pb2
 import auth_service.authservice_pb2_grpc as auth_pb2_grpc
 import db_service.db_handler_pb2 as db_pb2
 import db_service.db_handler_pb2_grpc as db_pb2_grpc
+import grpc
 import school_service.school_service_pb2 as school_pb2
 import school_service.school_service_pb2_grpc as school_pb2_grpc
-import grpc
 from dotenv import load_dotenv
 
 logging.basicConfig(level=logging.DEBUG)
@@ -29,8 +29,10 @@ school_service_stub = school_pb2_grpc.SchoolServiceStub(school_service_channel)
 class AuthService(auth_pb2_grpc.AuthServiceServicer):
     def login(self, request, context):
         logging.info("Receive request from client")
-        logging.info(f"Start request to rRPC server")
-        user_info_request = school_pb2.GetSchoolRequest(username=request.username, password=request.password)
+        logging.info("Start request to rRPC server")
+        user_info_request = \
+            school_pb2.GetSchoolRequest(username=request.username,
+                                        password=request.password)
         user_info_response = school_service_stub.get_school_info(user_info_request)
         logging.info(f"Receive response from rRPC server")
         logging.info(f"school user id: {user_info_response.school_user_id}")
@@ -43,7 +45,9 @@ class AuthService(auth_pb2_grpc.AuthServiceServicer):
             )
         logging.info(f"Success response from gRPC server")
         logging.info("Check user exists")
-        check_user_exist_request = db_pb2.CheckUserExistsRequest(school_user_id=user_info_response.school_user_id)
+        check_user_exist_request = db_pb2.CheckUserExistsRequest(
+            school_user_id=user_info_response.school_user_id
+        )
         check_user_exist_response = db_service_stub.check_user_exists(check_user_exist_request)
         if not check_user_exist_response.exists:
             logging.info("User not exists")
@@ -78,10 +82,10 @@ class AuthService(auth_pb2_grpc.AuthServiceServicer):
                 uuid="None"
             )
         set_info_request = db_pb2.SetAccessDataRequest(school_user_id=user_info_response.school_user_id,
-                                    access_token=user_info_response.access_token,
-                                    refresh_token=user_info_response.refresh_token,
-                                    session_state=user_info_response.session_state,
-                                    expires_in=user_info_response.expires_in)
+                                                       access_token=user_info_response.access_token,
+                                                       refresh_token=user_info_response.refresh_token,
+                                                       session_state=user_info_response.session_state,
+                                                       expires_in=user_info_response.expires_in)
         set_info_response = db_service_stub.set_access_data(set_info_request)
         uuid_request = db_pb2.GetUUIDRequest(school_user_id=user_info_response.school_user_id)
         uuid_response = db_service_stub.get_uuid(uuid_request)
@@ -95,4 +99,27 @@ class AuthService(auth_pb2_grpc.AuthServiceServicer):
             description="Success",
             status=0,
             uuid=uuid_response.uuid
+        )
+
+    def get_token_by_uuid(self, request, context):
+        db_request = db_pb2.GetAccessTokenByUUIDRequest(uuid=request.uuid)
+        db_response = db_service_stub.get_access_token_by_uuid(db_request)
+        print(db_response.status)
+        if db_response.status != 0:
+            return auth_pb2.TokenResponse(
+                description=db_response.description,
+                status=db_response.status
+            )
+        print(db_response.time_create + db_response.expires_in)
+        print(int(time.time()))
+        if (db_response.time_create + db_response.expires_in) > int(time.time()):
+            print("Token expired")
+            return auth_pb2.TokenResponse(
+                description="Token expired",
+                status=1
+            )
+        return auth_pb2.TokenResponse(
+            description="Success",
+            status=0,
+            access_token=db_response.access_token
         )
