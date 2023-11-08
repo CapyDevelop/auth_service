@@ -118,7 +118,8 @@ class AuthService(auth_pb2_grpc.AuthServiceServicer):
         db_request = db_pb2.GetAccessTokenByUUIDRequest(uuid=request.uuid)
         db_response = db_service_stub.get_access_token_by_uuid(db_request)
         if db_response.status != 0:
-            logging.info("[ GET TOKEN BY UUID ] Error response from db_service (get_access_token_by_uuid). ----- END -----")
+            logging.info("[ GET TOKEN BY UUID ] "
+                         "Error response from db_service (get_access_token_by_uuid). ----- END -----")
             return auth_pb2.TokenResponse(
                 description=db_response.description,
                 status=db_response.status
