@@ -125,7 +125,7 @@ class AuthService(auth_pb2_grpc.AuthServiceServicer):
                 status=db_response.status
             )
         logging.info("[ GET TOKEN BY UUID ] Check token expired")
-        if (db_response.time_create + db_response.expires_in) > int(time.time()):
+        if (db_response.time_create + db_response.expires_in) < int(time.time()):
             logging.info("[ GET TOKEN BY UUID ] Token expired. ----- END -----")
             return auth_pb2.TokenResponse(
                 description="Token expired",
