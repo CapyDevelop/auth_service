@@ -129,7 +129,7 @@ class AuthService(auth_pb2_grpc.AuthServiceServicer):
             logging.info("[ GET TOKEN BY UUID ] Token expired. ----- END -----")
             return auth_pb2.TokenResponse(
                 description="Token expired",
-                status=1
+                status=13
             )
         logging.info("[ GET TOKEN BY UUID ] Token OK. ----- END -----")
         return auth_pb2.TokenResponse(
