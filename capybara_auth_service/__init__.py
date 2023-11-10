@@ -115,6 +115,7 @@ class AuthService(auth_pb2_grpc.AuthServiceServicer):
 
     def get_token_by_uuid(self, request, context):
         logging.info("[ GET TOKEN BY UUID ] Start request to db_service (get_access_token_by_uuid). ----- START -----")
+        logging.info(f"[ GET TOKEN BY UUID ] UUID: {request.uuid}")
         db_request = db_pb2.GetAccessTokenByUUIDRequest(uuid=request.uuid)
         db_response = db_service_stub.get_access_token_by_uuid(db_request)
         if db_response.status != 0:
