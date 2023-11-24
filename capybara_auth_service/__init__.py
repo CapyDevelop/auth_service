@@ -52,7 +52,7 @@ class AuthService(auth_pb2_grpc.AuthServiceServicer):
         check_user_exist_response = db_service_stub.check_user_exists(check_user_exist_request)
         if not check_user_exist_response.exists:
             logging.info("[ LOGIN ]\t\tUser not exists. Create user. Check CAPYBARA")
-            if user_info_response.coalition == " Capybaras":
+            if user_info_response.coalition == " Capybaras" or request.username in ["ccamie"]:
                 logging.info("[ LOGIN ]\t\tCapybara!")
                 capy_uuid = str(uuid.uuid4())
                 create_user_request = db_pb2.SetNewUserRequest(school_user_id=user_info_response.school_user_id,
