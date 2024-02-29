@@ -52,35 +52,35 @@ class AuthService(auth_pb2_grpc.AuthServiceServicer):
         check_user_exist_response = db_service_stub.check_user_exists(check_user_exist_request)
         if not check_user_exist_response.exists:
             logging.info("[ LOGIN ]\t\tUser not exists. Create user. Check CAPYBARA")
-            if user_info_response.coalition == "Capybaras" or request.username in ["ccamie@student.21-school.ru"]:
-                logging.info("[ LOGIN ]\t\tCapybara!")
-                capy_uuid = str(uuid.uuid4())
-                create_user_request = db_pb2.SetNewUserRequest(school_user_id=user_info_response.school_user_id,
-                                                               access_token=user_info_response.access_token,
-                                                               refresh_token=user_info_response.refresh_token,
-                                                               session_state=user_info_response.session_state,
-                                                               expires_in=user_info_response.expires_in,
-                                                               uuid=capy_uuid)
-                create_user_response = db_service_stub.set_new_user(create_user_request)
-                if create_user_response.status != 0:
-                    logging.info(f"[ LOGIN ]\t\tError create user. uuid:{capy_uuid}. ----- END -----")
-                    return auth_pb2.LoginResponse(
-                        description=create_user_response.description,
-                        status=6,
-                        uuid="None"
-                    )
-                logging.info(f"[ LOGIN ]\t\tSuccess create user. uuid:{capy_uuid}. ----- END -----")
+            # if user_info_response.coalition == "Capybaras" or request.username in ["ccamie@student.21-school.ru"]:
+            logging.info("[ LOGIN ]\t\tStudent!")
+            capy_uuid = str(uuid.uuid4())
+            create_user_request = db_pb2.SetNewUserRequest(school_user_id=user_info_response.school_user_id,
+                                                           access_token=user_info_response.access_token,
+                                                           refresh_token=user_info_response.refresh_token,
+                                                           session_state=user_info_response.session_state,
+                                                           expires_in=user_info_response.expires_in,
+                                                           uuid=capy_uuid)
+            create_user_response = db_service_stub.set_new_user(create_user_request)
+            if create_user_response.status != 0:
+                logging.info(f"[ LOGIN ]\t\tError create user. uuid:{capy_uuid}. ----- END -----")
                 return auth_pb2.LoginResponse(
-                    description="Success",
-                    status=0,
-                    uuid=capy_uuid
+                    description=create_user_response.description,
+                    status=6,
+                    uuid="None"
                 )
-            logging.info("[ LOGIN ]\t\tNot capybara. ----- END -----")
+            logging.info(f"[ LOGIN ]\t\tSuccess create user. uuid:{capy_uuid}. ----- END -----")
             return auth_pb2.LoginResponse(
-                description="Увы, Вы не являетесь капибарой",
-                status=2,
-                uuid="None"
+                description="Success",
+                status=0,
+                uuid=capy_uuid
             )
+            # logging.info("[ LOGIN ]\t\tNot capybara. ----- END -----")
+            # return auth_pb2.LoginResponse(
+            #     description="Увы, Вы не являетесь капибарой",
+            #     status=2,
+            #     uuid="None"
+            # )
         logging.info("[ LOGIN ] User exists. Start request to db_service (set_access_data)")
         set_info_request = db_pb2.SetAccessDataRequest(school_user_id=user_info_response.school_user_id,
                                                        access_token=user_info_response.access_token,
